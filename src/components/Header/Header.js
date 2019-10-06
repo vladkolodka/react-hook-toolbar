@@ -1,11 +1,11 @@
-import React, {Fragment, useContext, useReducer, useEffect, useMemo} from 'react';
+import React, {Fragment, useContext, useReducer, useEffect, useRef} from 'react';
 
 const defaultValue = [(() => <span style={{color: 'red'}}>3</span>)()];
-const Context = React.createContext(defaultValue);
+export const ToolbarContextAccessor = React.createContext(defaultValue);
 
 export function Header() {
-    const {state: items} = useContext(Context);
-    console.log(items);
+    const {state: items} = useContext(ToolbarContextAccessor);
+
     return <Fragment>
         <h1>Header</h1>
         <p>Items:</p>
@@ -18,7 +18,8 @@ export function Header() {
 
 const actions = {
     push: 'push',
-    pop: 'pop'
+    pop: 'pop',
+    update: 'update'
 };
 
 function reducer(state, action) {
@@ -27,6 +28,10 @@ function reducer(state, action) {
             return [...state, action.payload];
         case actions.pop:
             return state.filter((_, i) => i !== state.length - 1);
+        case actions.update:
+            state[action.payload.index] = action.payload.item;
+            return [...state];
+
         default:
             return state;
     }
@@ -35,21 +40,34 @@ function reducer(state, action) {
 export function ToolbarContext({children}) {
     const [state, dispatch] = useReducer(reducer, defaultValue);
 
-    return <Context.Provider value={{state, dispatch}}>{children}</Context.Provider>;
+    return <ToolbarContextAccessor.Provider value={{state, dispatch}}>{children}</ToolbarContextAccessor.Provider>;
 }
 
-export const useToolbar = function (component, props = {}, dependencies = [], name) {
-    const {dispatch} = useContext(Context);
+let counter = 0;
 
-    const MemorizedComponent = useMemo(() => component, [component]);
+export const useToolbar = function (Component, props = {}, dependencies = []) {
+    const {dispatch} = useContext(ToolbarContextAccessor);
+    const index = useRef(-1);
 
     useEffect(() => {
-        console.log(name);
+        dispatch({type: actions.push, payload: <Component {...props}/>});
+        index.current = ++counter;
 
-        dispatch({type: actions.push, payload: <MemorizedComponent {...props}/>});
-
-        return () => dispatch({type: actions.pop});
+        return () => {
+            counter -= 1;
+            dispatch({type: actions.pop});
+        };
 
         /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    }, [dispatch, ...Object.values(props), ...dependencies]);
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch({
+            type: actions.update, payload: {
+                item: <Component {...props}/>,
+                index: index.current
+            }
+        });
+        /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    }, [dispatch, index, ...Object.values(props), ...dependencies]);
 };
