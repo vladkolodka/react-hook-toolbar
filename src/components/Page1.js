@@ -1,8 +1,8 @@
 import React, {Fragment} from 'react';
-import {useHeaderToolbar} from "./Header/Header";
+import {useToolbar} from "./Header/Header";
 
 const Page1 = () => {
-    useHeaderToolbar(() => (
+    useToolbar(() => (
         <div>Page1 item</div>
     ));
 

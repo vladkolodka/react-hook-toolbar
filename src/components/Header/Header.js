@@ -1,60 +1,55 @@
-import React, {Fragment, useContext, useReducer, useEffect} from 'react';
+import React, {Fragment, useContext, useReducer, useEffect, useMemo} from 'react';
 
-const defaultValue = [{item: (() => <span style={{color: 'red'}}>3</span>), props: {}}];
+const defaultValue = [(() => <span style={{color: 'red'}}>3</span>)()];
 const Context = React.createContext(defaultValue);
 
 export function Header() {
     const {state: items} = useContext(Context);
-    console.log('header state', items);
+    console.log(items);
     return <Fragment>
         <h1>Header</h1>
         <p>Items:</p>
 
         <ul>
-            {items.map((c, index) => {
-                // console.log('list render', c);
-                return <li key={index}><c.item {...c.props} /></li>;
-            })}
+            {items.map((Component, index) => <li key={index}>{Component}</li>)}
         </ul>
     </Fragment>;
 }
 
+const actions = {
+    push: 'push',
+    pop: 'pop'
+};
+
 function reducer(state, action) {
     switch (action.type) {
-        case 'push':
+        case actions.push:
             return [...state, action.payload];
-        case 'pop':
+        case actions.pop:
             return state.filter((_, i) => i !== state.length - 1);
-        case 'updateProps':
-            const newState = [...state];
-            // console.log('updater', newState[newState.length - 1]);
-            // if(newState[newState.length - 1]){
-                newState[newState.length - 1].props = action.payload;
-            // }
-            return newState;
         default:
             return state;
     }
 }
 
-export function HeaderContext({children}) {
+export function ToolbarContext({children}) {
     const [state, dispatch] = useReducer(reducer, defaultValue);
 
     return <Context.Provider value={{state, dispatch}}>{children}</Context.Provider>;
 }
 
-export const useHeaderToolbar = function (Component, props = {}, dependencies = []) {
+export const useToolbar = function (component, props = {}, dependencies = [], name) {
     const {dispatch} = useContext(Context);
 
-    useEffect(() => {
-        console.log('set item');
-        dispatch({type: 'push', payload: {item: Component, props: props}});
-
-        return () => dispatch({type: 'pop'});
-    }, [dispatch]);
+    const MemorizedComponent = useMemo(() => component, [component]);
 
     useEffect(() => {
-        console.log('update props', props);
-        dispatch({type: 'updateProps', payload: props});
+        console.log(name);
+
+        dispatch({type: actions.push, payload: <MemorizedComponent {...props}/>});
+
+        return () => dispatch({type: actions.pop});
+
+        /* eslint-disable-next-line react-hooks/exhaustive-deps */
     }, [dispatch, ...Object.values(props), ...dependencies]);
 };

@@ -1,5 +1,6 @@
 import React, {Fragment, useState} from 'react';
-import {useHeaderToolbar} from "./Header/Header";
+import {useToolbar} from "./Header/Header";
+import Page2Inner from "./Page2Inner";
 
 function Comp({val}) {
     const [v, setV] = useState(1);
@@ -13,13 +14,14 @@ function Comp({val}) {
 const Page2 = () => {
     const [val, setVal] = useState('123');
 
-    useHeaderToolbar(Comp, {val});
+    useToolbar(Comp, {val}, [], 'page2');
 
     return (
         <Fragment>
             <h1>Page 2</h1>
             <p>Val: {val}</p>
             <button onClick={() => setVal('fff')}>1</button>
+            <Page2Inner/>
         </Fragment>
     );
 };
