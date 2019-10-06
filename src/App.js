@@ -1,8 +1,10 @@
 import React, {useState} from 'react';
 
-import {Header, ToolbarContext} from "components/Header/Header";
+import {Header} from "components/Header/Header";
 import Page1 from "components/Page1";
 import Page2 from "components/Page2";
+
+import {ToolbarContext} from "components/ToolbarContext";
 
 function App() {
     const [pageState, setPageState] = useState('page2');

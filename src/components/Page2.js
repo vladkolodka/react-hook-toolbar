@@ -1,5 +1,6 @@
 import React, {Fragment, useState} from 'react';
-import {useToolbar} from "./Header/Header";
+import {useToolbar} from "hooks/useToolbar";
+
 import Page2Inner from "./Page2Inner";
 
 function Comp({val}) {

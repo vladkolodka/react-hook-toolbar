@@ -1,5 +1,5 @@
 import React, {Fragment} from 'react';
-import {useToolbar} from "./Header/Header";
+import {useToolbar} from "hooks/useToolbar";
 
 const Page1 = () => {
     useToolbar(() => (

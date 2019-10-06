@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useToolbar} from "./Header/Header";
+import {useToolbar} from "hooks/useToolbar";
 
 function Comp2({prop1}) {
     const [val, setVal] = useState(2);
